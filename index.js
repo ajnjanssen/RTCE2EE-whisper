@@ -41,6 +41,9 @@ wss.on("connection", (ws) => {
   let joinedRoom = null;
   let userInfo = null;
 
+  // Initialize heartbeat
+  ws.isAlive = true;
+
   ws.on("message", (message) => {
     try {
       const { type, payload } = JSON.parse(message);
@@ -125,12 +128,23 @@ wss.on("connection", (ws) => {
       }
 
       if (type === "message" && joinedRoom) {
+        console.log(
+          `Broadcasting message in room ${joinedRoom} from ${userInfo.username}`
+        );
         const peers = rooms.get(joinedRoom);
-        for (const [peer, peerInfo] of peers) {
-          if (peer !== ws && peer.readyState === WebSocket.OPEN) {
-            peer.send(
-              JSON.stringify({ type: "message", payload: payload.encrypted })
-            );
+        if (peers) {
+          for (const [peer, peerInfo] of peers) {
+            if (peer !== ws && peer.readyState === WebSocket.OPEN) {
+              console.log(
+                `Sending message to ${peerInfo.username} (${peerInfo.userId})`
+              );
+              peer.send(
+                JSON.stringify({
+                  type: "message",
+                  payload: payload.encrypted,
+                })
+              );
+            }
           }
         }
       }
@@ -178,17 +192,18 @@ wss.on("connection", (ws) => {
   });
 });
 
-// Add heartbeat to detect broken connections
+// Add heartbeat to detect broken connections (increased interval for production)
 const interval = setInterval(() => {
   wss.clients.forEach((ws) => {
     if (!ws.isAlive) {
+      console.log("Terminating unresponsive connection");
       return ws.terminate();
     }
 
     ws.isAlive = false;
     ws.ping();
   });
-}, 30000);
+}, 60000); // Increased to 60 seconds for better stability on Render
 
 wss.on("close", () => {
   clearInterval(interval);
