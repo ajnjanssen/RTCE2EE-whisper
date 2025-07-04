@@ -1,0 +1,12 @@
+# Render Blueprint for Whisper Relay Server
+services:
+  - type: web
+    name: whisper-relay
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+    healthCheckPath: /

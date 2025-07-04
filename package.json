@@ -1,0 +1,21 @@
+{
+  "name": "whisper-relay",
+  "version": "1.0.0",
+  "description": "Whisper - WebSocket relay server for RTC-E2EE chat application",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": ["whisper", "websocket", "chat", "relay", "e2ee"],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "dependencies": {
+    "ws": "^8.18.3"
+  }
+}
