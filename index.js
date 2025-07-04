@@ -151,6 +151,7 @@ wss.on("connection", (ws) => {
               console.log(
                 `Sending message to ${peerInfo.username} (${peerInfo.userId})`
               );
+              console.log("Sending payload:", payload.encrypted);
               peer.send(
                 JSON.stringify({
                   type: "message",
