@@ -46,7 +46,9 @@ wss.on("connection", (ws) => {
 
   ws.on("message", (message) => {
     try {
+      console.log("Raw message received:", message.toString());
       const { type, payload } = JSON.parse(message);
+      console.log("Parsed message:", { type, payload });
 
       if (type === "join") {
         const roomId = payload.roomId;
