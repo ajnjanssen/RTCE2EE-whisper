@@ -52,6 +52,7 @@ wss.on("connection", (ws) => {
 
       if (type === "ping") {
         // Respond to ping with pong
+        console.log("Received ping, sending pong");
         ws.send(JSON.stringify({ type: "pong" }));
         return;
       }
@@ -104,6 +105,7 @@ wss.on("connection", (ws) => {
             payload: { users: userList },
           })
         );
+        return;
       }
 
       if (type === "leave") {
@@ -133,45 +135,80 @@ wss.on("connection", (ws) => {
             rooms.delete(joinedRoom);
           }
         }
+        return;
       }
 
-      if (type === "message" && joinedRoom) {
+      if (type === "message") {
+        console.log("🔥 MESSAGE TYPE DETECTED!");
+        console.log("joinedRoom:", joinedRoom);
+        console.log("userInfo:", userInfo);
+
+        if (!joinedRoom) {
+          console.error("❌ User tried to send message but not in a room");
+          return;
+        }
+
+        if (!userInfo) {
+          console.error("❌ User tried to send message but no user info");
+          return;
+        }
+
         console.log(
-          `Broadcasting message in room ${joinedRoom} from ${userInfo.username}`
+          `🚀 Broadcasting message in room ${joinedRoom} from ${userInfo.username}`
         );
-        console.log("Message payload structure:", payload);
+        console.log("📦 Message payload structure:", payload);
+        console.log("📦 payload.encrypted:", payload.encrypted);
+
         const peers = rooms.get(joinedRoom);
         console.log(
-          `Found ${peers ? peers.size : 0} peers in room ${joinedRoom}`
+          `👥 Found ${peers ? peers.size : 0} peers in room ${joinedRoom}`
         );
+
         if (peers) {
           let messagesSent = 0;
           for (const [peer, peerInfo] of peers) {
             if (peer !== ws && peer.readyState === WebSocket.OPEN) {
               console.log(
-                `Sending message to ${peerInfo.username} (${peerInfo.userId})`
+                `📤 Sending message to ${peerInfo.username} (${peerInfo.userId})`
               );
-              console.log("Sending payload:", payload.encrypted);
-              peer.send(
-                JSON.stringify({
-                  type: "message",
-                  payload: payload.encrypted,
-                })
+              const messageToSend = {
+                type: "message",
+                payload: payload.encrypted,
+              };
+              console.log(
+                "📤 Full message being sent:",
+                JSON.stringify(messageToSend)
               );
-              messagesSent++;
+
+              try {
+                peer.send(JSON.stringify(messageToSend));
+                messagesSent++;
+                console.log(`✅ Successfully sent to ${peerInfo.username}`);
+              } catch (sendErr) {
+                console.error(
+                  `❌ Failed to send to ${peerInfo.username}:`,
+                  sendErr
+                );
+              }
             } else if (peer !== ws) {
               console.log(
-                `Skipping ${peerInfo.username} - connection not open (state: ${peer.readyState})`
+                `⏭️ Skipping ${peerInfo.username} - connection not open (state: ${peer.readyState})`
               );
+            } else {
+              console.log(`⏭️ Skipping sender ${peerInfo.username}`);
             }
           }
-          console.log(`Successfully sent message to ${messagesSent} peers`);
+          console.log(`📊 Successfully sent message to ${messagesSent} peers`);
         } else {
-          console.log(`No peers found for room ${joinedRoom}`);
+          console.log(`❌ No peers found for room ${joinedRoom}`);
         }
+        return;
       }
+
+      console.log("⚠️ Unknown message type:", type);
     } catch (err) {
-      console.error("Invalid message format", err);
+      console.error("💥 Error processing message:", err);
+      console.error("💥 Raw message was:", message.toString());
     }
   });
 
