@@ -50,6 +50,12 @@ wss.on("connection", (ws) => {
       const { type, payload } = JSON.parse(message);
       console.log("Parsed message:", { type, payload });
 
+      if (type === "ping") {
+        // Respond to ping with pong
+        ws.send(JSON.stringify({ type: "pong" }));
+        return;
+      }
+
       if (type === "join") {
         const roomId = payload.roomId;
         userInfo = {
@@ -133,8 +139,13 @@ wss.on("connection", (ws) => {
         console.log(
           `Broadcasting message in room ${joinedRoom} from ${userInfo.username}`
         );
+        console.log("Message payload structure:", payload);
         const peers = rooms.get(joinedRoom);
+        console.log(
+          `Found ${peers ? peers.size : 0} peers in room ${joinedRoom}`
+        );
         if (peers) {
+          let messagesSent = 0;
           for (const [peer, peerInfo] of peers) {
             if (peer !== ws && peer.readyState === WebSocket.OPEN) {
               console.log(
@@ -146,8 +157,16 @@ wss.on("connection", (ws) => {
                   payload: payload.encrypted,
                 })
               );
+              messagesSent++;
+            } else if (peer !== ws) {
+              console.log(
+                `Skipping ${peerInfo.username} - connection not open (state: ${peer.readyState})`
+              );
             }
           }
+          console.log(`Successfully sent message to ${messagesSent} peers`);
+        } else {
+          console.log(`No peers found for room ${joinedRoom}`);
         }
       }
     } catch (err) {
