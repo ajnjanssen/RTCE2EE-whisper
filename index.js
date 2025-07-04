@@ -143,19 +143,6 @@ wss.on("connection", (ws) => {
         console.log("joinedRoom:", joinedRoom);
         console.log("userInfo:", userInfo);
 
-        // IMMEDIATE ECHO TEST - send back to sender for debugging
-        console.log("🧪 SENDING IMMEDIATE ECHO TO SENDER FOR DEBUGGING");
-        ws.send(
-          JSON.stringify({
-            type: "debug_echo",
-            payload: {
-              original: payload,
-              encrypted: payload.encrypted,
-              message: "Echo from server - message was received",
-            },
-          })
-        );
-
         if (!joinedRoom) {
           console.error("❌ User tried to send message but not in a room");
           return;
