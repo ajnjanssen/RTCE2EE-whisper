@@ -1,12 +1,17 @@
-# Render Blueprint for Whisper Relay Server
+# Render Blueprint for Whisper Relay Server (Rust)
 services:
   - type: web
-    name: whisper-relay
-    runtime: node
+    name: whisper-relay-rust
+    runtime: rust
     plan: free
-    buildCommand: npm install
-    startCommand: npm start
+    buildCommand: cargo build --release
+    startCommand: ./target/release/rtce2ee-whisper
     envVars:
-      - key: NODE_ENV
-        value: production
-    healthCheckPath: /
+      - key: RUST_LOG
+        value: info
+      - key: PORT
+        fromService:
+          type: web
+          name: whisper-relay-rust
+          property: port
+    healthCheckPath: /health

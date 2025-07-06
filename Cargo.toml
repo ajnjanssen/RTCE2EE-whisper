@@ -1,0 +1,64 @@
+[package]
+name = "rtce2ee-whisper"
+version = "1.0.0"
+edition = "2021"
+description = "High-performance WebSocket relay server for RTC-E2EE chat application"
+license = "MIT"
+authors = ["RTC-E2EE Team"]
+
+[dependencies]
+# Web server and WebSocket support
+tokio = { version = "1.0", features = ["full"] }
+tokio-tungstenite = "0.21"
+warp = "0.3"
+futures-util = "0.3"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+
+# JSON serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Async utilities
+tokio-stream = "0.1"
+futures = "0.3"
+
+# Logging
+env_logger = "0.10"
+log = "0.4"
+
+# Rate limiting and security
+governor = "0.6"
+nonzero_ext = "0.3"
+
+# Environment configuration
+dotenv = "0.15"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Collections and data structures
+dashmap = "5.5"
+indexmap = "2.0"
+
+# Time utilities
+chrono = { version = "0.4", features = ["serde"] }
+
+# HTTP client for health checks
+reqwest = { version = "0.11", features = ["json"] }
+
+# Regex for input validation
+regex = "1.10"
+
+# Base64 encoding/decoding for encrypted message validation
+base64 = "0.21"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+
+[profile.dev]
+opt-level = 0
+debug = true

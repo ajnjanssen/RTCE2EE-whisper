@@ -1,0 +1,35 @@
+# Git
+.git
+.gitignore
+
+# Documentation
+*.md
+docs/
+
+# Node.js (legacy files)
+node_modules/
+package*.json
+*.js
+
+# Rust build artifacts
+target/
+**/*.rs.bk
+
+# IDE
+.vscode/
+.idea/
+
+# Environment
+.env*
+!.env.example
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Deployment
+render.yaml
+Procfile
