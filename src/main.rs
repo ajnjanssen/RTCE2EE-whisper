@@ -55,17 +55,15 @@ impl ServerState {
 }
 
 #[tokio::main]
-async fn main() -> Result<()> {
+async fn main() {
     // Initialize logging
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
     
     // Load environment variables
     dotenv::dotenv().ok();
     
-    let port = std::env::var("PORT")
-        .unwrap_or_else(|_| "8080".to_string())
-        .parse::<u16>()
-        .unwrap_or(8080);
+    let port = std::env::var("PORT").unwrap_or_else(|_| "8080".to_string());
+    let addr = format!("0.0.0.0:{}", port).parse().unwrap();
     
     info!("Starting Whisper WebSocket Relay Server v1.0.0");
     info!("Environment: {}", std::env::var("NODE_ENV").unwrap_or_else(|_| "development".to_string()));
@@ -119,11 +117,7 @@ async fn main() -> Result<()> {
     
     info!("Server listening on port {}", port);
     
-    warp::serve(routes)
-        .run(([0, 0, 0, 0], port))
-        .await;
-    
-    Ok(())
+    warp::serve(routes).run(addr).await;
 }
 
 async fn handle_websocket(
